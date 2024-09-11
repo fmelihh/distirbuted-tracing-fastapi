@@ -4,14 +4,32 @@ import requests
 from pathlib import Path
 from fastapi import FastAPI
 
+from opentelemetry import trace, baggage
+from prometheus_client import start_http_server
+from opentelemetry import metrics
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry import trace, propagators, baggage
 from opentelemetry.baggage.propagation import W3CBaggagePropagator
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from opentelemetry.sdk.trace.export import ConsoleSpanExporter, BatchSpanProcessor
 
 
 app = FastAPI()
+
+resource = Resource(attributes={
+    SERVICE_NAME: "microservice2"
+})
+
+
+start_http_server(port=9090, addr="localhost")
+
+reader = PrometheusMetricReader()
+provider = MeterProvider(resource=resource, metric_readers=[reader])
+metrics.set_meter_provider(provider)
 
 trace.set_tracer_provider(TracerProvider())
 trace_provider: TracerProvider = trace.get_tracer_provider()
