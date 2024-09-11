@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 fastapi = "^0.114.1"
 uvicorn = "^0.30.6"
+opentelemetry-distro = "^0.48b0"
 
 
 [build-system]

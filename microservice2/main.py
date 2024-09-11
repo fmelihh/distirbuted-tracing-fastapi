@@ -36,6 +36,8 @@ async def add_user(username: str, age: int):
             data=json.dumps({"user": {"username": username, "age": age}}),
         )
 
+        return "hello from microservice2"
+
 
 if __name__ == "__main__":
     uvicorn.run(app=f"{Path(__file__).stem}:app", host="0.0.0.0", port=8001)
