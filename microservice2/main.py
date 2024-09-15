@@ -4,12 +4,11 @@ import requests
 from pathlib import Path
 from fastapi import FastAPI
 
-from opentelemetry import trace, baggage
-from prometheus_client import start_http_server
+import prometheus_client
 from opentelemetry import metrics
-from opentelemetry.exporter.prometheus import PrometheusMetricReader
+from opentelemetry import trace, baggage
 from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.prometheus import PrometheusMetricReader
 from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 
 from opentelemetry.sdk.trace import TracerProvider
@@ -20,12 +19,10 @@ from opentelemetry.sdk.trace.export import ConsoleSpanExporter, BatchSpanProcess
 
 app = FastAPI()
 
-resource = Resource(attributes={
-    SERVICE_NAME: "microservice2"
-})
+resource = Resource(attributes={SERVICE_NAME: "microservice2"})
 
 
-start_http_server(port=9090, addr="localhost")
+prometheus_client.start_http_server(port=9090, addr="localhost")
 
 reader = PrometheusMetricReader()
 provider = MeterProvider(resource=resource, metric_readers=[reader])
@@ -40,7 +37,7 @@ tracer = trace.get_tracer(__name__)
 
 @app.get("/send-user")
 async def add_user(username: str, age: int):
-    with tracer.start_as_current_span("microservice2_span") as span:
+    with tracer.start_as_current_span("microservice2_span"):
         ctx = baggage.set_baggage("hello", "world")
 
         headers = {}
